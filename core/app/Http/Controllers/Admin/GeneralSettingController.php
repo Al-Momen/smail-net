@@ -5,17 +5,22 @@ namespace App\Http\Controllers\Admin;
 use HTMLPurifier;
 use App\Models\Frontend;
 use Illuminate\Http\Request;
+use App\Http\Helpers\Generals;
 use App\Models\GeneralSetting;
 use App\Rules\FileTypeValidate;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Artisan;
-use Intervention\Image\Facades\Image as FacadesImage;
 use Illuminate\Support\Facades\URL;
+// use Intervention\Image\Facades\Image as FacadesImage;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image as FacadesImage;
 
 class GeneralSettingController extends Controller
 {
     public function index()
     {
+       
         $general = GeneralSetting::first();
         $pageTitle = 'General Setting';
         $timezones = json_decode(file_get_contents(resource_path('views/admin/partials/timezone.json')));
@@ -24,6 +29,7 @@ class GeneralSettingController extends Controller
 
     public function update(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'base_color' => 'nullable', 'regex:/^[a-f0-9]{6}$/i',
             'secondary_color' => 'nullable', 'regex:/^[a-f0-9]{6}$/i',
@@ -32,7 +38,7 @@ class GeneralSettingController extends Controller
 
         $general = GeneralSetting::first();
         $general->ev = $request->ev ? 1 : 0;
-        $general->en = $request->en ? 1 : 0;
+        $general->en = $request->en ? 1 : 1;
         $general->sv = $request->sv ? 1 : 0;
         $general->sn = $request->sn ? 1 : 0;
         $general->dark = $request->dark ? 1 : 0;
@@ -54,14 +60,15 @@ class GeneralSettingController extends Controller
         $general->secondary_color = $request->secondary_color;
         $general->component_color = $request->component_color;
         $general->otp_expiration = $request->otp_expiration;
+        $general->timezone = $request->timezone;
         $general->save();
 
         $timezoneFile = config_path('timezone.php');
-        $content = '<?php $timezone = '.$request->timezone.' ?>';
+        $content = '<?php $timezone = "'.$request->timezone.'" ?>';
         file_put_contents($timezoneFile, $content);
-        //$notify[] = ['success', 'General setting has been updated.'];
-        // return back()->withNotify($notify);
-        return back()->with('success','General setting has been updated.');
+        $notify[] = ['success', 'General setting has been updated.'];
+        return back()->withNotify($notify);
+        // return back()->with('success','General setting has been updated.');
     }
 
     public function optimize(){
@@ -78,11 +85,14 @@ class GeneralSettingController extends Controller
 
     public function logoIconUpdate(Request $request)
     {
+        
         $request->validate([
             'logo' => ['image',new FileTypeValidate(['jpg','jpeg','png'])],
             'whiteLogo' => ['image',new FileTypeValidate(['jpg','jpeg','png'])],
             'favicon' => ['image',new FileTypeValidate(['png','ico'])],
         ]);
+
+        $path = imagePath()['logoIcon']['path'];
 
         if ($request->hasFile('logo')) {
             try {
@@ -90,7 +100,8 @@ class GeneralSettingController extends Controller
                 if (!file_exists($path)) {
                     mkdir($path, 0755, true);
                 }
-                FacadesImage::make($request->logo)->save($path . '/logo.png');
+                // FacadesImage::make($request->logo)->save($path . '/logo.png');
+                File::move($request->logo, $path . '/logo.png');
             } catch (\Exception $exp) {
                 $notify[] = ['error', 'Logo could not be uploaded.'];
                 return back()->withNotify($notify);
@@ -99,11 +110,16 @@ class GeneralSettingController extends Controller
 
         if ($request->hasFile('whiteLogo')) {
             try {
+                // dd($request->whiteLogo);
                 $path = imagePath()['logoIcon']['path'];
                 if (!file_exists($path)) {
                     mkdir($path, 0755, true);
                 }
-                FacadesImage::make($request->whiteLogo)->save($path . '/whiteLogo.png');
+                // dd($request->whiteLogo);
+                Generals::logoupload('logo/', 'png', $request->whiteLogo);
+                File::move($request->whiteLogo, $path . '/whiteLogo.png');
+                
+                
             } catch (\Exception $exp) {
                 $notify[] = ['error', 'White Logo could not be uploaded.'];
                 return back()->withNotify($notify);
@@ -117,7 +133,8 @@ class GeneralSettingController extends Controller
                     mkdir($path, 0755, true);
                 }
                 $size = explode('x', imagePath()['favicon']['size']);
-                FacadesImage::make($request->favicon)->resize($size[0], $size[1])->save($path . '/favicon.png');
+                File::move($request->favicon, $path . '/favicon.png');
+                // FacadesImage::make($request->favicon)->resize($size[0], $size[1])->save($path . '/favicon.png');
             } catch (\Exception $exp) {
                 $notify[] = ['error', 'Favicon could not be uploaded.'];
                 return back()->withNotify($notify);
@@ -154,7 +171,7 @@ class GeneralSettingController extends Controller
     {
         $pageTitle = 'SEO Configuration';
         $seo = Frontend::where('data_keys', 'seo.data')->first();
-
+        
         if(!$seo){
             $data_values = '{"keywords":["admin","blog"],"description":"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit","social_title":"WEBSITENAME","social_description":"Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit","image":null}';
             $data_values = json_decode($data_values, true);
@@ -167,7 +184,8 @@ class GeneralSettingController extends Controller
     }
     public function seoUpdate(Request $request, $key)
     {
-        $purifier = new HTMLPurifier();
+        $purifier = new \HTMLPurifier();
+
         $valInputs = $request->except('_token', 'image_input', 'key', 'status', 'type', 'id');
         foreach ($valInputs as $keyName => $input) {
             if (gettype($input) == 'array') {
@@ -180,6 +198,7 @@ class GeneralSettingController extends Controller
         if (!$type) {
             abort(404);
         }
+
         $imgJson = @getPageSections()->$key->$type->images;
         $validation_rule = [];
         $validation_message = [];

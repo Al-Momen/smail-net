@@ -11,7 +11,6 @@
                 <div class="shadow-lg rounded">
                     <div class="pe-0">
                         <div class="form-left h-100 py-5 px-5 text-white">
-
                             @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -28,10 +27,7 @@
                                     data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
-
-
-
-                            <form class="row g-4" action="{{route('user.regstration')}}" method="POST">
+                            <form class="row g-4" action="{{url('registration')}}" method="POST">
                                 @csrf
                                 <div class="col-12">
                                     <label class="text-white">Full Name<span class="text-danger">*</span></label>
@@ -56,29 +52,30 @@
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-12 pe-0">
                                         <label class="text-white">Country<span class="text-danger">*</span></label>
-                                        <select class="form-select form-select-md mb-3" style="padding: 12px 10px;"
-                                            aria-label=".form-select-lg example" name="country">
-                                            <option selected>Canada</option>
-                                            <option value="1">Japan</option>
-                                            <option value="2">Germany</option>
-                                            <option value="3">Switzerland</option>
-                                        </select>
+                                        <select class=" selectpicker countrypicker form-select form-select-md mb-3" style="padding: 12px 10px;"
+                                            aria-label=".form-select-lg example" name="country" data-live-search="true" data-default="United States" data-flag="true">
 
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <label class="text-white">Password<span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="password" name="password" class="form-control" placeholder="Password">
+                                    <div class="">
+                                        <input id="password" type="password" name="password" class="form-control" placeholder="Password">
+                                        <span toggle="#password"
+                                        class="fa fa-fw fa-eye field-icon toggle-password"></span>
+
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <label class="text-white">Confirm Password<span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password">
-                                    </div>
+                                    <div class="">
+                                        <input id="password-field" type="password" name="confirm_password" class="form-control" placeholder="Confirm Password">
+                                        <span toggle="#password-field"
+                                        class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                    </div> 
                                 </div>
 
                                 <div class="col-12">
@@ -88,7 +85,7 @@
                             </form>
                         </div>
                     </div>
-                    <a href="{{route('user.login.form')}}" class="d-flex justify-content-center">
+                    <a href="{{route('login')}}" class="d-flex justify-content-center">
                         <h3 class="text-capitalize text-center text-danger fs-6 pb-3">already have an account?</h3>
                     </a>
                 </div>
@@ -100,5 +97,32 @@
         End SignIn Section
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-
 @endsection
+@push('js')
+    <script>
+        $(".toggle-password").click(function() {
+
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+            if (input.attr("type") == "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+    </script>
+@endpush
+@push('css')
+    <style>
+        .field-icon {
+            float: right;
+            margin-right: 15px;
+            margin-top: -33px;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            color: black;
+
+        }
+    </style>
+@endpush

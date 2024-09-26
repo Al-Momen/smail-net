@@ -5,7 +5,7 @@
                 <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
                     <img class="img-fluid" src="{{URL::asset('assets/frontend/images/logo/logo1.png')}}" alt="logo" style="height: 4rem;">
                     <p class="py-3">
-                        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                        {!!$footer->heading!!}
                     </p>
                 </div>
 
@@ -15,20 +15,17 @@
                         Resources
                     </h6>
                     <p>
-                        <a href="#0" class="text-reset">Home</a>
+                        <a href="{{route('index')}}" class="text-reset">Home</a>
                     </p>
                     <p>
-                        <a href="#0" class="text-reset">Movies</a>
+                        <a href="" class="text-reset">Movies</a>
                     </p>
                     <p>
-                        <a href="#0" class="text-reset">Tickets</a>
-                    </p>
-                    <p>
-                        <a href="#0" class="text-reset">News</a>
+                        <a href="{{route('news')}}" class="text-reset">Author Walls</a>
                     </p>
                 </div>
 
-                <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                {{-- <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
                     <!-- Links -->
                     <h6 class="text-uppercase fw-bold mb-4">
                         Legal
@@ -42,16 +39,16 @@
                     <p>
                         <a href="#0" class="text-reset">Security</a>
                     </p>
-                </div>
+                </div> --}}
 
                 <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
                     <!-- Links -->
                     <h6 class="text-uppercase fw-bold mb-4">
                         Contact
                     </h6>
-                    <p><i class="fas fa-home me-3"></i>Medino, Kitaniya Road , USA</p>
-                    <p><i class="fas fa-envelope me-3"></i>info@example.com</p>
-                    <p><i class="fas fa-phone me-3"></i> + 1-234-567-890</p>
+                    <p><i class="fas fa-home me-3"></i>{{$social_link->address}}</p>
+                    <p><i class="fas fa-envelope me-3"></i>{{$social_link->email}}</p>
+                    <p><i class="fas fa-phone me-3"></i> {{$social_link->phone}}</p>
                 </div>
             </div>
         </div>
@@ -61,22 +58,22 @@
     <div class="d-flex justify-content-center justify-content-lg-between border-top p-4 container">
         <div class="me-5 d-none d-lg-block">
             <p>
-                © 2022 Copyright:
-                <a class="text-reset fw-bold" href="#0">smile net</a>
+                © {{$footer->title}} Copyright:
+                <a class="text-reset fw-bold" href="{{route('index')}}">{{$general->sitename}}</a>
             </p>
         </div>
 
         <div>
-            <a href="#0" class="me-4 text-reset text-decoration-none">
+            <a href="{{URL($social_link->fb_link)}}" class="me-4 text-reset text-decoration-none">
                 <i class="fab fa-facebook-f"></i>
             </a>
-            <a href="#0" class="me-4 text-reset text-decoration-none">
+            <a href="{{URL($social_link->twitter_link)}}" class="me-4 text-reset text-decoration-none">
                 <i class="fab fa-twitter"></i>
             </a>
-            <a href="#0" class="me-4 text-reset text-decoration-none">
+            <a href="{{URL($social_link->instragram_link)}}" class="me-4 text-reset text-decoration-none">
                 <i class="fab fa-instagram"></i>
             </a>
-            <a href="#0" class="me-4 text-reset text-decoration-none">
+            <a href="{{URL($social_link->linkedin_link)}}" class="me-4 text-reset text-decoration-none">
                 <i class="fab fa-linkedin"></i>
             </a>
         </div>
